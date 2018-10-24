@@ -22,7 +22,7 @@ public class TESTMetodosAux {
 		return false;
 	}
 
-	public Map<String, String> infoFichero(String numeroPaso, String letraPaso, String nombre) throws IOException {
+	public Map<String, String> infoFichero(int pasoE, String letraPaso, String nombre) throws IOException {
 		// TODO Auto-generated method stub
 		boolean seguir = true, buscar = false;	
 		TESTLectorPasos lectorPasos =  new TESTLectorPasos();
@@ -34,8 +34,8 @@ public class TESTMetodosAux {
 	    BufferedReader lectorPROC = new BufferedReader(ficheroPROC);
 		//-----------------------------------------------------------------------
 	    
-	    int aux = Integer.parseInt(numeroPaso) - 1;
-	    numeroPaso = (aux < 10) ? "0" + String.valueOf(aux) : String.valueOf(aux) ;
+	    String numeroPaso;    
+	    numeroPaso = (pasoE < 10) ? "0" + String.valueOf(pasoE) : String.valueOf(pasoE) ;
 	    
 	    while((linea = lectorPROC.readLine()) != null && seguir) {
 	    	if(linea.startsWith("//" + letraPaso + numeroPaso)) {
@@ -110,12 +110,12 @@ public class TESTMetodosAux {
 		infoFich.put(clave, valor);
 		
 		if(!infoFich.containsKey("DSN")) {
-			//FICHEROS DUMMY
+			clave = "DUMMY";
+			valor = infoFichero.get(0);
 		}
 		else {
 			if(infoFich.get("DSN").endsWith("XP")) {
-		
-			infoFich.replace("DISP", "TEMP");
+				infoFich.replace("DISP", "TEMP");
 			}
 		}
 		System.out.println("------- Datos sacados del Fichero:  -------");

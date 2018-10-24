@@ -63,6 +63,14 @@ public class TESTLectorPasos {
 					valor = pasos.get(i);
 					datos.put(clave, valor);
 				}
+// --------------- Buscar IF - ENDIF
+				if(pasos.get(i).matches("(.*)IF [" + TESTmainApp.letraPaso + "][0-9]{2}(.*)")) {
+					clave = "IF";
+					index = pasos.get(i).indexOf("IF " + TESTmainApp.letraPaso);
+					valor = pasos.get(i).substring(index);
+//					System.out.println(clave + " - " + valor);
+					datos.put(clave, valor);
+				}
 // --------------- Buscar reportes			
 				
 				//INSERTAR AQUI VUESTROS CASOS

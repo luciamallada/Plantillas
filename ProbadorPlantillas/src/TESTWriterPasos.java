@@ -4,11 +4,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.SimpleFormatter;
 
 public class TESTWriterPasos {
 
 	TESTMetodosAux metodosAux = new TESTMetodosAux();
-	
+	int pasoS = -1;
 	//------- INSERTAR NUESTRO CÓDIGO DE ESCRIBIR LA PLANTILLA
 	
 	
@@ -20,7 +25,7 @@ public class TESTWriterPasos {
 	//------------------------------------------------------------
 
 	public void writeJFICHSAL(Map<String, String> datos, String numeroPaso, int i, String letraPaso,
-			BufferedWriter writerCortex) throws IOException {
+			BufferedWriter writerCortex, int pasoE) throws IOException {
 		// TODO Auto-generated method stub
 		//----------------Fichero de plantilla JFICHENT--------------------------
 	    FileReader ficheroJFICHSAL = new FileReader("C:\\Cortex\\Plantillas\\JFICHSAL.txt");
@@ -32,8 +37,7 @@ public class TESTWriterPasos {
 	    
 	    //----------------Método---------------------------------------------
 	    nombre = datos.get("Salida" + String.valueOf(i));
-	    infoFich = metodosAux.infoFichero(numeroPaso, letraPaso, nombre);
-	    for(int j = nombre.length(); j < 8; j++) {
+	    infoFich = metodosAux.infoFichero(pasoE, letraPaso, nombre);	    for(int j = nombre.length(); j < 8; j++) {
 			nombre += " ";
 		}
 	    while((linea = lectorJFICHSAL.readLine()) != null) {
@@ -100,7 +104,7 @@ public class TESTWriterPasos {
 	    lectorJFICHSAL.close();	 
 	}
 	
-	public void writeJFICHENT(Map<String, String> datos, String numeroPaso, int i, String letraPaso, BufferedWriter writerCortex) throws IOException {
+	public void writeJFICHENT(Map<String, String> datos, String numeroPaso, int i, String letraPaso, BufferedWriter writerCortex, int pasoE) throws IOException {
 		// TODO Auto-generated method stub
 		//----------------Fichero de plantilla JFICHENT--------------------------
 	    FileReader ficheroJFICHENT = new FileReader("C:\\Cortex\\Plantillas\\JFICHENT.txt");
@@ -116,7 +120,7 @@ public class TESTWriterPasos {
 		for(int j = nombre.length(); j < 8; j++) {
 			nombre += " ";
 		}
-	    infoFich = metodosAux.infoFichero(numeroPaso, letraPaso, nombre);
+	    infoFich = metodosAux.infoFichero(pasoE, letraPaso, nombre);
 	    
 	    while((linea = lectorJFICHENT.readLine()) != null) {
 	    	contadorLinea ++;
@@ -139,7 +143,7 @@ public class TESTWriterPasos {
 	    lectorJFICHENT.close();	 
 	}
 	
-	public void writeJBORRAF(Map<String, String> datos, String numeroPaso, int i, String letraPaso, BufferedWriter writerCortex) throws IOException {
+	public void writeJBORRAF(Map<String, String> datos, String numeroPaso, int i, String letraPaso, BufferedWriter writerCortex, int pasoE) throws IOException {
 		// TODO Auto-generated method stub
 		//----------------Fichero de plantilla JBORRAF--------------------------
 	    FileReader ficheroJBORRAF = new FileReader("C:\\Cortex\\Plantillas\\JBORRAF.txt");
@@ -151,7 +155,7 @@ public class TESTWriterPasos {
 	    //----------------Método---------------------------------------------
 	    Map<String, String> infoFich = new HashMap<String, String>();
 	    nombre = datos.get("Borrar" + String.valueOf(i));
-	    infoFich = metodosAux.infoFichero(numeroPaso, letraPaso, nombre);
+	    infoFich = metodosAux.infoFichero(pasoE, letraPaso, nombre);
 	    
 	    while((linea = lectorJBORRAF.readLine()) != null) {
 	    	contadorLinea ++;
@@ -161,7 +165,11 @@ public class TESTWriterPasos {
 	    	}
 	    	switch (contadorLinea) {
 	    	case 2:
-	    		linea = linea.replace("//---D-", "//" + letraPaso + numeroPaso + "D" + String.valueOf(i));
+	    		if(i < 10) {
+	    			linea = linea.replace("//---D-", "//" + letraPaso + numeroPaso + "D" + String.valueOf(i));
+	    		}else {
+	    			linea = linea.replace("//---D- ", "//" + letraPaso + numeroPaso + "D" + String.valueOf(i));
+	    		}
 	    		linea = linea.replace("APL.XXXXXXXX.NOMMEM.&FAAMMDDV", infoFich.get("DSN"));
 	    		break;
 	    	default:

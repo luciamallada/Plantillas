@@ -6,34 +6,55 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class TESTmainApp {
 	
 	//--------------------- DATO A INTRODUCIR ------------------------------
 	public static String programa = "Prueba";
 	//----------------------------------------------------------------------
-	public static Map<String, String> datos = new HashMap<String, String>();
-	static String letraPaso = programa.substring(5,6);
-	static int paso = -2;
-	static ArrayList<String> fichero = new ArrayList<String>();
-	static ArrayList<String> pasos = new ArrayList<String>();
-	static int lineNumber = 0;
-	static TESTLectorPasos lectorPasos = new TESTLectorPasos();
-	static TESTWriterPasos writerPasos = new TESTWriterPasos();
-
+	//--------------------- Variables Programa -----------------------------
+		private final static Logger LOGGER = Logger.getLogger("mainApp");
+		public static Map<String, String> datos = new HashMap<String, String>();
+		static String letraPaso = programa.substring(5,6);
+		static int pasoE = 0;
+		static int pasoS = 1;
+		static ArrayList<String> fichero = new ArrayList<String>();
+		static ArrayList<String> pasos = new ArrayList<String>();
+		static int lineNumber = 0;
+		static int auxTot = 0;
+		static int auxDecimal = 0;
+		static int auxUnidad = 0;
+		static TESTLectorPasos lectorPasos = new TESTLectorPasos();
+		static TESTWriterPasos writerPasos = new TESTWriterPasos();
+		
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		String extension = ".txt";
+		Handler consoleHandler = new ConsoleHandler();
+		Handler fileHandler = new FileHandler("C:\\Cortex\\incidencias.log", false);
+		SimpleFormatter simpleFormatter = new SimpleFormatter();
+		fileHandler.setFormatter(simpleFormatter);
+		LOGGER.addHandler(consoleHandler);
+        LOGGER.addHandler(fileHandler);
+        consoleHandler.setLevel(Level.ALL);
+        fileHandler.setLevel(Level.ALL);
+		
 		String linea, tipoPaso;
-		boolean seguir = true;
+		boolean seguir = true, escribir = false;
+
 //-------------------------------------Ficheros-------------------------------------------------		
-	    FileReader ficheroPCL = new FileReader("C:\\Cortex\\Tester\\" + programa + extension);
+	    FileReader ficheroPCL = new FileReader("C:\\Cortex\\Tester\\" + programa + ".txt");
 	    BufferedReader lectorPCL = new BufferedReader(ficheroPCL);
 	    
 	    FileWriter ficheroCortex = new FileWriter("C:\\Cortex\\Tester\\Resultado\\" + programa.substring(0,6) + ".txt");
 	    BufferedWriter writerCortex = new BufferedWriter(ficheroCortex);
 //----------------------------------------------------------------------------------------------
-	  //------------- Pasamos todo el fichero a un arraylist	
+	  //------------- Pasamos todo el paso a un arraylist	
 	    while((linea = lectorPCL.readLine())!=null) {
 	    	fichero.add(linea);	 
 	    }
@@ -70,15 +91,26 @@ public class TESTmainApp {
 				String tipoPaso = "";
 				
 				for(int i = lineNumber; i < fichero.size(); i++) {
-			    	String numeroPaso = (paso < 10) ? "0" + String.valueOf(paso) : String.valueOf(paso) ;
-					String numeroPasoSiguiente = (paso + 2 < 10) ? "0" + String.valueOf(paso+2) : String.valueOf(paso+2);
+//			    	String numeroPaso = (pasoE < 10) ? "0" + String.valueOf(pasoE) : String.valueOf(pasoE) ;
+//					String numeroPasoSiguiente = (pasoE + pasoAPaso < 10) ? "0" + String.valueOf(pasoE+pasoAPaso) : String.valueOf(pasoE+pasoAPaso);
 			    	//Buscamos que la linea empiece por I+paso
-			    	if(fichero.get(i).startsWith(letraPaso + String.valueOf(numeroPaso))) {
-			    		inicio = i;
-			    	}
-			    	if(fichero.get(i).startsWith(letraPaso + String.valueOf(numeroPasoSiguiente))) {
-			    		fin = i;
-			    		i = fichero.size() + 1;
+//			    	if(fichero.get(i).startsWith(letraPaso + String.valueOf(numeroPaso))) {
+//			    		inicio = i;
+//			    	}
+//			    	if(fichero.get(i).startsWith(letraPaso + String.valueOf(numeroPasoSiguiente))) {
+//		    		fin = i;
+//		    		i = fichero.size() + 1;
+//		    	}
+			    	if(fichero.get(i).matches("[" + letraPaso + "][" + auxDecimal + "-9][" + auxUnidad + "-9] (.*)")) {
+			    		if (inicio == 0) {
+			    			inicio= i;
+			    			pasoE = Integer.parseInt(fichero.get(i).substring(1,3));
+				    		auxDecimal = pasoE / 10;
+				    		auxUnidad  = pasoE - auxDecimal * 10 + 1;
+			    		}else {
+			    			fin = i;
+			    			i = fichero.size() + 1;
+			    		}
 			    	}
 			    	if(i == 0) {
 			    		inicio = 0;
@@ -118,8 +150,9 @@ public class TESTmainApp {
 				}else {
 					if (fichero.get(inicio).contains(" SORT ")) {
 						tipoPaso = "SORT";
-					}else {
-						
+					}
+					if (fichero.get(inicio).contains("PGM=SOF07013")) {
+							tipoPaso = "JBORRARF";
 					}
 				}
 				
