@@ -9,14 +9,12 @@ public class TESTLectorPasos {
 		Map<String, String> datos = new HashMap<String, String>();
 		String clave, valor;
 		int index = 0;
-		int archivosEntrada = 0, archivosSalida = 0, comentarios = 0;
-		
+		int archivosEntrada = 0, archivosSalida = 0, comentarios = 0, reportes = 0;		
 		for(int i = 0; i < pasos.size(); i++) {
 			index = 0;
 			if (!pasos.get(i).startsWith("CUADRE")) {
 // ------------- Buscamos las variables, con la referencia del igual	
-				if (!pasos.get(i).contains("FILE")) {
-					while (index != -1) {
+				if (!pasos.get(i).contains("FILE") && !pasos.get(i).startsWith("*")) {					while (index != -1) {
 						index = pasos.get(i).indexOf('=', index);
 						if (index != -1 && pasos.get(i).charAt(index + 1) != '(') {
 							clave = leerClave(pasos.get(i), index);
@@ -29,7 +27,8 @@ public class TESTLectorPasos {
 							index ++;
 						}
 					}
-				}else {
+				}
+				if(pasos.get(i).contains("FILE")){
 // -------------- Buscamos los posibles archivos
 					index = 0;
 					index = pasos.get(i).indexOf("MODE=") + 5;
@@ -63,6 +62,17 @@ public class TESTLectorPasos {
 					valor = pasos.get(i);
 					datos.put(clave, valor);
 				}
+// --------------- Buscar reportes	
+				if (pasos.get(i).contains(" REPORT ")) {
+					if(pasos.get(i).trim().endsWith("SYSOUT=S") || pasos.get(i).trim().endsWith("SYSOUT=*")) {
+						continue;
+					}else {
+						reportes++;
+						clave = "Reporte" + String.valueOf(reportes);
+						valor = pasos.get(i).substring(0,9);
+						datos.put(clave, valor);
+					}	
+				}
 // --------------- Buscar IF - ENDIF
 				if(pasos.get(i).matches("(.*)IF [" + TESTmainApp.letraPaso + "][0-9]{2}(.*)")) {
 					clave = "IF";
@@ -70,8 +80,7 @@ public class TESTLectorPasos {
 					valor = pasos.get(i).substring(index);
 //					System.out.println(clave + " - " + valor);
 					datos.put(clave, valor);
-				}
-// --------------- Buscar reportes			
+				}		
 				
 				//INSERTAR AQUI VUESTROS CASOS
 				
@@ -136,7 +145,7 @@ public class TESTLectorPasos {
 			valor = linea.substring(index + 2, fin).replace(',', '-');
 		}else{
 			for(int i = index; i < linea.length(); i++) {
-				if (linea.charAt(i) == ',' || linea.charAt(i) == ' ') {
+				if (linea.charAt(i) == ',' || linea.charAt(i) == ' ' || linea.charAt(i) == ')') {
 					fin = i;
 					i = linea.length() + 1;
 				}

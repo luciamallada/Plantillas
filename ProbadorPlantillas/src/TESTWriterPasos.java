@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -151,9 +152,9 @@ public class TESTWriterPasos {
 	    //----------------Variables------------------------------------------
 	    String linea, nombre;
 	    int contadorLinea = 0;
+	    Map<String, String> infoFich = new HashMap<String, String>();
 	    
 	    //----------------Método---------------------------------------------
-	    Map<String, String> infoFich = new HashMap<String, String>();
 	    nombre = datos.get("Borrar" + String.valueOf(i));
 	    infoFich = metodosAux.infoFichero(pasoE, letraPaso, nombre);
 	    
@@ -189,4 +190,43 @@ public class TESTWriterPasos {
 	    }
 	}
 
+	public void writeJFTPSEND(Map<String, String> datos, String letraPaso, int pasoE, BufferedWriter writerCortex) throws IOException {
+		// TODO Auto-generated method stub
+		//----------------Fichero de plantilla JJMAILTXT--------------------------
+	    FileReader ficheroJFTPSEND = new FileReader("C:\\Cortex\\Plantillas\\JFTPSEND.txt");
+	    BufferedReader lectorJFTPSEND = new BufferedReader(ficheroJFTPSEND);	
+	    //----------------Variables------------------------------------------
+	    String linea;
+	    pasoS += 2;
+	    String numeroPaso = (pasoS < 10) ? "0" + String.valueOf(pasoS) : String.valueOf(pasoS) ;
+	    int contadorLinea = 0;
+	    Map<String, String> infoFTP = new HashMap<String, String>();
+	    //----------------Método---------------------------------------------
+	    
+	    while((linea = lectorJFTPSEND.readLine()) != null) {
+	    	contadorLinea ++;
+	    	switch (contadorLinea) {
+	    	case 2:
+	    		linea = linea.replace("//---", "//" + letraPaso + numeroPaso);
+				break;
+	    	case 3:
+	    		linea = linea.replace("DES=destino,", "DES=" + datos.get("DES") + ",");
+				break;
+	    	case 4:
+	    		//CAMBIAR!!!!
+	    		linea = linea.replace("HOST=,", "HOST=" + datos.get("HOST") + ",");
+	    		break;
+	    	case 5:
+	    		linea = linea.replace("FIT=nomfichred", "HOST=" + datos.get("HOST") + ",");
+	    		break;
+			default:
+				break;
+			}
+	    	System.out.println("Escribimos: " + linea);
+	    	writerCortex.write(linea);
+	    	writerCortex.newLine();
+	    }
+	    lectorJFTPSEND.close();		
+	    writeComments(datos, writerCortex);
+	}
 }

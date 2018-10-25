@@ -6,12 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 public class TESTmainApp {
 	
@@ -19,7 +14,7 @@ public class TESTmainApp {
 	public static String programa = "Prueba";
 	//----------------------------------------------------------------------
 	//--------------------- Variables Programa -----------------------------
-		private final static Logger LOGGER = Logger.getLogger("mainApp");
+		//private final static Logger LOGGER = Logger.getLogger("mainApp");
 		public static Map<String, String> datos = new HashMap<String, String>();
 		static String letraPaso = programa.substring(5,6);
 		static int pasoE = 0;
@@ -32,18 +27,19 @@ public class TESTmainApp {
 		static int auxUnidad = 0;
 		static TESTLectorPasos lectorPasos = new TESTLectorPasos();
 		static TESTWriterPasos writerPasos = new TESTWriterPasos();
-		
+		static TESTAvisos  avisos = new TESTAvisos();
+
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		Handler consoleHandler = new ConsoleHandler();
-		Handler fileHandler = new FileHandler("C:\\Cortex\\incidencias.log", false);
-		SimpleFormatter simpleFormatter = new SimpleFormatter();
-		fileHandler.setFormatter(simpleFormatter);
-		LOGGER.addHandler(consoleHandler);
-        LOGGER.addHandler(fileHandler);
-        consoleHandler.setLevel(Level.ALL);
-        fileHandler.setLevel(Level.ALL);
-		
+//		Handler consoleHandler = new ConsoleHandler();
+//		Handler fileHandler = new FileHandler("C:\\Cortex\\incidencias.log", false);
+//		SimpleFormatter simpleFormatter = new SimpleFormatter();
+//		fileHandler.setFormatter(simpleFormatter);
+//		LOGGER.addHandler(consoleHandler);
+//        LOGGER.addHandler(fileHandler);
+//        consoleHandler.setLevel(Level.ALL);
+//        fileHandler.setLevel(Level.ALL);
+//		
 		String linea, tipoPaso;
 		boolean seguir = true, escribir = false;
 
@@ -68,14 +64,17 @@ public class TESTmainApp {
 		    	System.out.println(pasos.get(i));
 		    }
 		    System.out.println("----------------------------------------");
-		    		    		    
-		    // ----- INSERTAR AQUI VUESTRO METODO ---------3
-		    // NOMBRE PLANTILLA : "XXXX"
+    		    
 		    datos = lectorPasos.leerPaso(pasos);
 		    System.out.println("------- Datos sacados del Paso:  -------");
+		    System.out.println("Paso para el switch: " + tipoPaso);		
 		    datos.forEach((k,v) -> System.out.println(k + "-" + v));
 		    System.out.println("----------------------------------------");
-			//writerPasos.writeSORT(datos, letraPaso, paso, writerCortex);
+		    
+		    // ----- INSERTAR AQUI VUESTRO METODO ---------3
+		    // NOMBRE PLANTILLA : "XXXX"
+			//writerPasos.writeSORT(datos, letraPaso, pasoE, writerCortex);
+		      writerPasos.writeJFTPSEND(datos, letraPaso, pasoE, writerCortex);
 		    // --------------------------------------------
 		    if (lineNumber + 1 == fichero.size()) {
 				seguir = false;
@@ -101,7 +100,8 @@ public class TESTmainApp {
 //		    		fin = i;
 //		    		i = fichero.size() + 1;
 //		    	}
-			    	if(fichero.get(i).matches("[" + letraPaso + "][" + auxDecimal + "-9][" + auxUnidad + "-9] (.*)")) {
+			    	if(fichero.get(i).matches("[" + letraPaso + "][" + auxDecimal + "-9][" + auxUnidad + "-9] (.*)")
+			    			|| fichero.get(i).matches("[" + letraPaso + "][" + auxDecimal + 1 + "-9][0-9] (.*)")) {
 			    		if (inicio == 0) {
 			    			inicio= i;
 			    			pasoE = Integer.parseInt(fichero.get(i).substring(1,3));
@@ -153,6 +153,9 @@ public class TESTmainApp {
 					}
 					if (fichero.get(inicio).contains("PGM=SOF07013")) {
 							tipoPaso = "JBORRARF";
+					}
+					if (fichero.get(inicio).contains("PGM=IDCAMS")) {
+						tipoPaso = "IDCAMS";
 					}
 				}
 				
