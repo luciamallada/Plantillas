@@ -203,4 +203,13 @@ public class TESTMetodosAux {
 		return infoFich;
 	}
 
+	public Map<String, String> infoFtpReb(int pasoE, String letraPaso) throws IOException {
+		// TODO Auto-generated method stub
+		Map<String, String> infoFich   = new HashMap<String, String>();
+		
+		infoFich = infoFichero(pasoE, letraPaso, "SORTI1");
+
+		return infoFich;
+	}
+
 }

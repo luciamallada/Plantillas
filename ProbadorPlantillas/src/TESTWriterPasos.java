@@ -229,4 +229,84 @@ public class TESTWriterPasos {
 	    lectorJFTPSEND.close();		
 	    writeComments(datos, writerCortex);
 	}
+
+	public void writeJFTPREB(Map<String, String> datos, String letraPaso, int pasoE, BufferedWriter writerCortex) throws IOException {
+		// TODO Auto-generated method stub
+				//----------------Fichero de plantilla JFTPREB--------------------------
+			    FileReader ficheroJFTPREB = new FileReader("C:\\Cortex\\Plantillas\\JFTPREB.txt");
+			    BufferedReader lectorJFTPREB = new BufferedReader(ficheroJFTPREB);	
+			    //----------------Variables------------------------------------------
+			    String linea;
+			    pasoS += 2;
+			    String numeroPaso = (pasoS < 10) ? "0" + String.valueOf(pasoS) : String.valueOf(pasoS) ;
+			    int contadorLinea = 0, spaces = 0;
+			    Map<String, String> infoFtpReb = new HashMap<String, String>();
+			    //----------------Método---------------------------------------------
+			    
+			    infoFtpReb = metodosAux.infoFtpReb(pasoE, letraPaso);
+			    //----------------Método---------------------------------------------
+			    while((linea = lectorJFTPREB.readLine()) != null) {
+			    	contadorLinea ++;
+			    	switch (contadorLinea) {
+			    	case 2:
+			    		linea = linea.replace("//---", "//" + letraPaso + numeroPaso);
+			    		linea = linea.replace("APL.XXXXXXXX.NOMMEM.&FAAMMDDV", infoFtpReb.get("DSN"));
+						break;
+			    	case 3:
+			    		linea = linea.replace("//---", "//" + letraPaso + numeroPaso);
+			    		break;
+			    	case 4:
+			    		//Calculamos cuantos espacios hay que añadir detrás para que no se muevan los comentarios de posición
+			    		StringBuffer orig = new StringBuffer("ORIG=" + datos.get("ORIG") + ",");
+			    		spaces = 39 - orig.length();
+			    		for (int j = 0; j < spaces; j++) {
+			    			orig.append(" ");
+			    		}
+			    		linea = linea.replace("ORIG=SERVIDOR_ORIGEN,                  ", orig);
+						break;
+			    	case 5:
+			    	    StringBuffer forig = new StringBuffer("FIT=" + datos.get("FORIG").replace("*", ".TXT"));
+			    	    if(datos.containsKey("DIR")) {
+			    	    	forig.append(",");
+			    	    }
+			    	    spaces = 39 - forig.length();  		
+			    		for (int j = 0; j < spaces; j++) {
+			    			forig.append(" ");
+			    		}
+			    		linea = linea.replace("FIT=NOMFICHRED.TXT                     ", forig);
+			    		break;
+			    	case 6:
+			    		if(datos.containsKey("DIR")) {
+			    			linea = linea.replace("//*", "// "); 
+			    			StringBuffer dir = new StringBuffer("DIR='" + datos.get("DIR") + "'");
+			    			spaces = 38 - dir.length();  		
+				    		for (int j = 0; j < spaces; j++) {
+				    			dir.append(" ");
+				    		}
+				    		linea = linea.replace("DIR=XXX                               ", dir);
+			    		}
+			    		break;
+			    	case 7:
+			    		linea = linea.replace("APL.XXXXXXXX.NOMMEM.&FAAMMDDV", infoFtpReb.get("DSN"));
+			    		break;
+			    	case 9:
+			    		if(infoFtpReb.containsKey("MGMTCLAS")) {
+			    			linea = linea.replace("//*", "// ");
+			    			linea = linea.replace("EXLIXXXX", infoFtpReb.get("MGMTCLAS"));
+			    		}
+			    		break;
+			    	case 10:
+			    		linea = linea.replace("(LONGREG,(KKK,KK))", infoFtpReb.get("Definicion"));
+			    	case 11:
+			    		linea = linea.replace("LONGREG", infoFtpReb.get("LRECL"));
+					default:
+						break;
+					}
+			    	System.out.println("Escribimos: " + linea);
+			    	writerCortex.write(linea);
+			    	writerCortex.newLine();
+			    }
+			    lectorJFTPREB.close();		
+			    writeComments(datos, writerCortex);
+			}
 }

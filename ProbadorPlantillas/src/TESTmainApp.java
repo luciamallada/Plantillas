@@ -12,11 +12,12 @@ public class TESTmainApp {
 	
 	//--------------------- DATO A INTRODUCIR ------------------------------
 	public static String programa = "Prueba";
+	public static String letraPaso = "E";
 	//----------------------------------------------------------------------
 	//--------------------- Variables Programa -----------------------------
 		//private final static Logger LOGGER = Logger.getLogger("mainApp");
 		public static Map<String, String> datos = new HashMap<String, String>();
-		static String letraPaso = programa.substring(5,6);
+//		static String letraPaso = programa.substring(5,6);
 		static int pasoE = 0;
 		static int pasoS = 1;
 		static ArrayList<String> fichero = new ArrayList<String>();
@@ -74,7 +75,7 @@ public class TESTmainApp {
 		    // ----- INSERTAR AQUI VUESTRO METODO ---------3
 		    // NOMBRE PLANTILLA : "XXXX"
 			//writerPasos.writeSORT(datos, letraPaso, pasoE, writerCortex);
-		      writerPasos.writeJFTPSEND(datos, letraPaso, pasoE, writerCortex);
+		      writerPasos.writeJFTPREB(datos, letraPaso, pasoE, writerCortex);
 		    // --------------------------------------------
 		    if (lineNumber + 1 == fichero.size()) {
 				seguir = false;
