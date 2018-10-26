@@ -11,11 +11,11 @@ import java.util.logging.Level;
 public class TESTmainApp {
 	
 	//--------------------- DATO A INTRODUCIR ------------------------------
-	public static String programa = "Prueba";
-	public static String letraPaso = "F";
+	public static String programa = "AGE01F";
 	//----------------------------------------------------------------------
 	//--------------------- Variables Programa -----------------------------
 		public static Map<String, String> datos = new HashMap<String, String>();
+		static String letraPaso = programa.substring(5,6);
 		static int pasoE = 0;
 		static int pasoS = 1;
 		static ArrayList<String> fichero = new ArrayList<String>();
