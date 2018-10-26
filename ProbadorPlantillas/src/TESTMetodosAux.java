@@ -10,6 +10,7 @@ public class TESTMetodosAux {
 	static TESTAvisos  avisos = new TESTAvisos();
 	TESTLectorPasos lectorPasos =  new TESTLectorPasos();
 
+
 	public boolean checkLiteralesPARDB2(String param) {
 		// TODO Auto-generated method stub
 		if (!param.startsWith("&")) {
@@ -30,7 +31,7 @@ public class TESTMetodosAux {
 		String linea;
 		ArrayList<String> infoFichero = new ArrayList<String>();
 		//----------------Fichero de plantilla JPROC--------------------------
-	    FileReader ficheroPROC = new FileReader("C:\\Cortex\\PROC.txt");
+	    FileReader ficheroPROC = new FileReader("C:\\Cortex\\PROC\\" + TESTmainApp.programa.substring(0,6) + ".txt");
 	    BufferedReader lectorPROC = new BufferedReader(ficheroPROC);
 		//-----------------------------------------------------------------------
 	    
@@ -94,6 +95,7 @@ public class TESTMetodosAux {
 		    	}
 		    	tamaño = Integer.valueOf(infoFichero.get(j).substring(ini + 1, fin));
 		    	primario = Integer.parseInt(infoFich.get("SPACE")) * tamaño / Integer.parseInt(infoFich.get("LRECL")) / 1000;
+		    	primario = primario < 5 ? 10 : primario;
 		    	
 		    	ini = fin;
 		    	for(int i = ini; i < infoFichero.get(j).length(); i++) {
@@ -104,7 +106,7 @@ public class TESTMetodosAux {
 		    	}
 		    	tamaño = Integer.valueOf(infoFichero.get(j).substring(ini + 1, fin));
 		    	secundario = Integer.parseInt(infoFich.get("SPACE")) * tamaño / Integer.parseInt(infoFich.get("LRECL")) / 1000;; 
-		    	
+		    	secundario = secundario < 3 ? 3 : secundario;
 		    }else {
 		    	if(infoFichero.get(j).contains("SPACE") && infoFich.get("SPACE").equals("CYL")) {
 		    		primario = 15;
@@ -162,7 +164,7 @@ public class TESTMetodosAux {
 		String linea, clave, valor = "";
 		int index = 0;
 		//----------------Fichero de plantilla JPROC--------------------------
-	    FileReader ficheroPROC = new FileReader("C:\\Cortex\\PROC.txt");
+	    FileReader ficheroPROC = new FileReader("C:\\Cortex\\PROC\\" + TESTmainApp.programa.substring(0,6) + ".txt");
 	    BufferedReader lectorPROC = new BufferedReader(ficheroPROC);
 		//-----------------------------------------------------------------------
 	    
@@ -174,7 +176,7 @@ public class TESTMetodosAux {
 	    		buscar = true;
 	    	}
 	    	if(buscar) {
-	    		if(linea.contains(fhost + ".")){
+	    		if(linea.contains(fhost + ".") && linea.contains("DSN=")){
 	    			index = linea.indexOf('=', index);
 	    			clave = lectorPasos.leerClave(linea, index);
 					valor = lectorPasos.leerValor(linea, index);
@@ -202,7 +204,7 @@ public class TESTMetodosAux {
 	    
 		return infoFich;
 	}
-
+	
 	public Map<String, String> infoFtpReb(int pasoE, String letraPaso) throws IOException {
 		// TODO Auto-generated method stub
 		Map<String, String> infoFich   = new HashMap<String, String>();
@@ -210,6 +212,37 @@ public class TESTMetodosAux {
 		infoFich = infoFichero(pasoE, letraPaso, "SORTI1");
 
 		return infoFich;
+	}
+	
+	public String infoDSN(int pasoE, String letraPaso, String name) throws IOException {
+		// TODO Auto-generated method stub
+		boolean seguir = true, buscar = false;	
+		String linea, clave, valor = "";
+		int index = 0;
+		//----------------Fichero de plantilla JPROC--------------------------
+	    FileReader ficheroPROC = new FileReader("C:\\Cortex\\PROC\\" + TESTmainApp.programa.substring(0,6) + ".txt");
+	    BufferedReader lectorPROC = new BufferedReader(ficheroPROC);
+		//-----------------------------------------------------------------------
+	    
+	    String numeroPaso;    
+	    numeroPaso = (pasoE < 10) ? "0" + String.valueOf(pasoE) : String.valueOf(pasoE) ;
+	    
+	    while((linea = lectorPROC.readLine()) != null && seguir) {
+	    	if(linea.startsWith("//" + letraPaso + numeroPaso)) {
+	    		buscar = true;
+	    	}
+	    	if(buscar) {
+	    		if(linea.startsWith("//" + name + "  ")){
+	    			index = linea.indexOf('=', index);
+	    			clave = lectorPasos.leerClave(linea, index);
+					valor = lectorPasos.leerValor(linea, index);
+					buscar = false;
+					seguir = false;
+	    		}
+	    	}	    	
+	    }
+	    lectorPROC.close();
+		return valor;
 	}
 
 }

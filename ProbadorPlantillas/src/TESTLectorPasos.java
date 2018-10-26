@@ -9,12 +9,14 @@ public class TESTLectorPasos {
 		Map<String, String> datos = new HashMap<String, String>();
 		String clave, valor;
 		int index = 0;
-		int archivosEntrada = 0, archivosSalida = 0, comentarios = 0, reportes = 0;		
+		int archivosEntrada = 0, archivosSalida = 0, comentarios = 0, reportes = 0;
+		
 		for(int i = 0; i < pasos.size(); i++) {
 			index = 0;
 			if (!pasos.get(i).startsWith("CUADRE")) {
 // ------------- Buscamos las variables, con la referencia del igual	
-				if (!pasos.get(i).contains("FILE") && !pasos.get(i).startsWith("*")) {					while (index != -1) {
+				if (!pasos.get(i).contains("FILE") && !pasos.get(i).startsWith("*")) {
+					while (index != -1) {
 						index = pasos.get(i).indexOf('=', index);
 						if (index != -1 && pasos.get(i).charAt(index + 1) != '(') {
 							clave = leerClave(pasos.get(i), index);
@@ -32,7 +34,7 @@ public class TESTLectorPasos {
 // -------------- Buscamos los posibles archivos
 					index = 0;
 					index = pasos.get(i).indexOf("MODE=") + 5;
-					if (pasos.get(i).charAt(index) == 'I') {
+					if (pasos.get(i).charAt(index) == 'I' || pasos.get(i).charAt(index) == 'U') {
 						archivosEntrada++;
 						valor = leerArchivoEntrada(pasos.get(i));
 						clave = "Entrada" + String.valueOf(archivosEntrada);
@@ -64,7 +66,7 @@ public class TESTLectorPasos {
 				}
 // --------------- Buscar reportes	
 				if (pasos.get(i).contains(" REPORT ")) {
-					if(pasos.get(i).trim().endsWith("SYSOUT=S") || pasos.get(i).trim().endsWith("SYSOUT=*")) {
+					if(pasos.get(i).trim().endsWith("SYSOUT=S") || pasos.get(i).trim().endsWith("SYSOUT=*") || pasos.get(i).trim().endsWith("SYSOUT=*END") ) {
 						continue;
 					}else {
 						reportes++;
@@ -80,15 +82,7 @@ public class TESTLectorPasos {
 					valor = pasos.get(i).substring(index);
 //					System.out.println(clave + " - " + valor);
 					datos.put(clave, valor);
-				}		
-				
-				//INSERTAR AQUI VUESTROS CASOS
-				
-				
-				
-				//------------------------------
-				
-				
+				}
 			}	
 		}
 
@@ -173,6 +167,34 @@ public class TESTLectorPasos {
 		clave = linea.substring(inicio + 1, index);
 		
 		return clave;
+	}
+	public Map<String, String> leerPasoSort(ArrayList<String> pasos) {
+		Map<String, String> datos = new HashMap<String, String>();
+		String valor, clave;
+		int i = 0;
+		
+		for(int j = 0; j < pasos.size(); j++) {
+			if(pasos.get(j).startsWith("SYSIN")) {
+				for(int k = j + 1; !pasos.get(k).contains("DATAEND"); k++) {
+					
+				//	vacios y end!!!!
+					if (pasos.get(k).endsWith("X")) {
+						i++;
+						clave = "SORT" + String.valueOf(i);
+						valor = pasos.get(k).substring(0, pasos.get(k).length()-1);
+						datos.put(clave, valor);
+					}else {
+						i++;
+						clave = "SORT" + String.valueOf(i);
+						valor = pasos.get(k);
+						datos.put(clave, valor);
+					}	
+				}
+				j = pasos.size() + 1;
+			}
+		}
+		
+		return datos;
 	}
 
 }

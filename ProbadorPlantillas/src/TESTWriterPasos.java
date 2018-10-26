@@ -24,7 +24,75 @@ public class TESTWriterPasos {
 	
 	
 	//------------------------------------------------------------
-
+	public void writeSORT(Map<String, String> datos, String letraPaso, int paso, BufferedWriter writerCortex) throws IOException {
+		// TODO Auto-generated method stub
+		//----------------Fichero de plantilla DB2--------------------------
+	    FileReader ficheroJSORT = new FileReader("C:\\Cortex\\Plantillas\\JSORT.txt");
+	    BufferedReader lectorJSORT = new BufferedReader(ficheroJSORT);	
+	    //----------------Variables------------------------------------------
+	    String linea;
+	    pasoS += 2;
+	    String numeroPaso = (pasoS < 10) ? "0" + String.valueOf(pasoS) : String.valueOf(pasoS) ;
+	    int contadorLinea = 0;
+	    int i = 1;
+	    Map<String, String> infoFich = new HashMap<String, String>();
+	    
+	    //----------------Método---------------------------------------------
+	    
+	    infoFich = metodosAux.infoSort(paso, letraPaso);
+	    //---------------- Escribimos la plantilla JSORT
+	    while((linea = lectorJSORT.readLine()) != null) {
+	    	contadorLinea ++;
+	    	switch (contadorLinea) {
+	    	case 2:
+	    		linea = linea.replace("//---D1", "//" + letraPaso + numeroPaso + "D" + String.valueOf(i));
+	    		i++;
+	    		linea = linea.replace("APL.XXXXXXXX.NOMMEM.&FAAMMDDV", infoFich.get("DSN"));
+				break;
+	    	case 4:
+	    		linea = linea.replace("//---", "//" + letraPaso + numeroPaso);
+	    		break;
+	    	case 5:
+	    		linea = linea.replace("APL.XXXXXXXX.NOMMEM.&FAAMMDDV", infoFich.get("SORTIN"));
+	    		break;
+	    	case 6:
+	    		linea = linea.replace("APL.XXXXXXXX.NOMMEM.&FAAMMDDV", infoFich.get("DSN"));
+	    		break;
+	    	case 8:
+	    		if(infoFich.containsKey("MGMTCLAS")) {
+	    			linea = linea.replace("//*", "// ");
+	    			linea = linea.replace("EXLIXXXX", infoFich.get("MGMTCLAS"));
+	    		}
+	    		break;
+	    	case 9:
+	    		linea = linea.replace("(LONGREG,(KKK,KK))", infoFich.get("Definicion"));
+	    		break;
+	    	case 11:
+	    		for (int j = 1; datos.containsKey("SORT" + j); j++) {
+	    			if (datos.get("SORT" + j).startsWith("SORT")) {
+	    				linea = linea.replace("SORT FIELDS=(X,XX,XX,X)", datos.get("SORT" + j));
+	    			}else {
+	    				linea = "   " + datos.get("SORT" + j); 
+	    			}
+	    			System.out.println("Escribimos: " + linea);
+	    	    	writerCortex.write(linea);
+	    	    	writerCortex.newLine();
+	    	    	linea = "";
+	    		}
+	    		
+	    		break;
+			default:
+				break;
+			}
+	    	if (!linea.equals("")) {
+	    		System.out.println("Escribimos: " + linea);
+	    		writerCortex.write(linea);
+	    		writerCortex.newLine();
+	    	}
+	    }
+	    lectorJSORT.close();
+	    writeComments(datos, writerCortex);
+	}
 	public void writeJFICHSAL(Map<String, String> datos, String numeroPaso, int i, String letraPaso,
 			BufferedWriter writerCortex, int pasoE) throws IOException {
 		// TODO Auto-generated method stub
@@ -307,6 +375,52 @@ public class TESTWriterPasos {
 			    	writerCortex.newLine();
 			    }
 			    lectorJFTPREB.close();		
+			    writeComments(datos, writerCortex);
+			}
+	public void writeJMAILMSG(Map<String, String> datos, String letraPaso, int pasoE, BufferedWriter writerCortex) throws IOException {
+		// TODO Auto-generated method stub
+				//----------------Fichero de plantilla JMAILMSG--------------------------
+			    FileReader ficheroJMAILMSG = new FileReader("C:\\Cortex\\Plantillas\\JMAILMSG.txt");
+			    BufferedReader lectorJMAILMSG = new BufferedReader(ficheroJMAILMSG);	
+			    //----------------Variables------------------------------------------
+			    String linea;
+			    pasoS += 2;
+			    String numeroPaso = (pasoS < 10) ? "0" + String.valueOf(pasoS) : String.valueOf(pasoS) ;
+			    int contadorLinea = 0, spaces = 0;
+			    //----------------Método---------------------------------------------    
+			    
+			    while((linea = lectorJMAILMSG.readLine()) != null) {
+			    	contadorLinea ++;
+			    	switch (contadorLinea) {
+			    	case 2:
+			    		linea = linea.replace("//---", "//" + letraPaso + numeroPaso);
+						break;
+			    	case 3:
+			    		//Calculamos cuantos espacios hay que añadir detrás para que no se muevan los comentarios de posición
+			    		StringBuffer dsnName = new StringBuffer("DSNAME=Z." + metodosAux.infoDSN(pasoE, letraPaso, "ENTRA1") + ",");
+			    		spaces = 42 - dsnName.length();
+			    		for (int j = 0; j < spaces; j++) {
+			    			dsnName.append(" ");
+			    		}
+			    		linea = linea.replace("DSNAME=,                                  ", dsnName);
+						break;
+			    	case 4:
+			    		//Calculamos cuantos espacios hay que añadir detrás para que no se muevan los comentarios de posición
+			    		StringBuffer fitTxt = new StringBuffer("FITTXT=" + datos.get("SORTIDA"));
+			    		spaces = 42 - fitTxt.length();
+			    		for (int j = 0; j < spaces; j++) {
+			    			fitTxt.append(" ");
+			    		}
+			    		linea = linea.replace("FITTXT=                                   ", fitTxt);
+						break;
+					default:
+						break;
+					}
+			    	System.out.println("Escribimos: " + linea);
+			    	writerCortex.write(linea);
+			    	writerCortex.newLine();
+			    }
+			    lectorJMAILMSG.close();		
 			    writeComments(datos, writerCortex);
 			}
 }

@@ -12,12 +12,10 @@ public class TESTmainApp {
 	
 	//--------------------- DATO A INTRODUCIR ------------------------------
 	public static String programa = "Prueba";
-	public static String letraPaso = "E";
+	public static String letraPaso = "F";
 	//----------------------------------------------------------------------
 	//--------------------- Variables Programa -----------------------------
-		//private final static Logger LOGGER = Logger.getLogger("mainApp");
 		public static Map<String, String> datos = new HashMap<String, String>();
-//		static String letraPaso = programa.substring(5,6);
 		static int pasoE = 0;
 		static int pasoS = 1;
 		static ArrayList<String> fichero = new ArrayList<String>();
@@ -32,15 +30,6 @@ public class TESTmainApp {
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-//		Handler consoleHandler = new ConsoleHandler();
-//		Handler fileHandler = new FileHandler("C:\\Cortex\\incidencias.log", false);
-//		SimpleFormatter simpleFormatter = new SimpleFormatter();
-//		fileHandler.setFormatter(simpleFormatter);
-//		LOGGER.addHandler(consoleHandler);
-//        LOGGER.addHandler(fileHandler);
-//        consoleHandler.setLevel(Level.ALL);
-//        fileHandler.setLevel(Level.ALL);
-//		
 		String linea, tipoPaso;
 		boolean seguir = true, escribir = false;
 
@@ -75,7 +64,7 @@ public class TESTmainApp {
 		    // ----- INSERTAR AQUI VUESTRO METODO ---------3
 		    // NOMBRE PLANTILLA : "XXXX"
 			//writerPasos.writeSORT(datos, letraPaso, pasoE, writerCortex);
-		      writerPasos.writeJFTPREB(datos, letraPaso, pasoE, writerCortex);
+		      writerPasos.writeJMAILMSG(datos, letraPaso, pasoE, writerCortex);
 		    // --------------------------------------------
 		    if (lineNumber + 1 == fichero.size()) {
 				seguir = false;
@@ -124,22 +113,6 @@ public class TESTmainApp {
 			    }
 				pasos.clear();
 				
-				for(int i = inicio; i < fin; i++) {
-					String linea = fichero.get(i);
-					if (linea.length() >= 71) {
-						linea = linea.substring(0, 71);
-					}
-					for (int j = i + 1; j < fichero.size() && fichero.get(j).startsWith(" "); j++) {
-						if(fichero.get(j).endsWith("X")) {
-							linea = linea + fichero.get(j).substring(0, fichero.get(j).length()-1).trim();
-						}else {
-							linea = linea + fichero.get(j).trim();
-						}
-						i = j;
-					}
-					pasos.add(linea);
-				}
-				
 				index = fichero.get(inicio).indexOf("PATTERN");
 				if (index != -1) {
 					for(int i = index; i < fichero.get(inicio).trim().length(); i++) {
@@ -158,6 +131,23 @@ public class TESTmainApp {
 					if (fichero.get(inicio).contains("PGM=IDCAMS")) {
 						tipoPaso = "IDCAMS";
 					}
+				}
+				for(int i = inicio; i < fin; i++) {
+					String linea = fichero.get(i);
+					if (linea.length() >= 71) {
+						linea = linea.substring(0, 71);
+					}
+					if(!tipoPaso.equals("SORT")) {
+						for (int j = i + 1; j < fichero.size() && fichero.get(j).startsWith(" "); j++) {
+							if(fichero.get(j).endsWith("X")) {
+								linea = linea + fichero.get(j).substring(0, fichero.get(j).length()-1).trim();
+							}else {
+								linea = linea + fichero.get(j).trim();
+							}
+							i = j;
+						}
+					}
+					pasos.add(linea);
 				}
 				
 				lineNumber = fin;
