@@ -11,7 +11,7 @@ import java.util.logging.Level;
 public class TESTmainApp {
 	
 	//--------------------- DATO A INTRODUCIR ------------------------------
-	public static String programa = "AUT60A";
+	public static String programa = "AGE01F";
 	//----------------------------------------------------------------------
 	//--------------------- Variables Programa -----------------------------
 		public static Map<String, String> datos = new HashMap<String, String>();
@@ -31,7 +31,7 @@ public class TESTmainApp {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		String linea, tipoPaso;
-		boolean seguir = true, escribir = false;
+		boolean seguir = true;
 
 //-------------------------------------Ficheros-------------------------------------------------		
 	    FileReader ficheroPCL = new FileReader("C:\\Cortex\\Tester\\" + programa + ".txt");
@@ -54,8 +54,9 @@ public class TESTmainApp {
 		    	System.out.println(pasos.get(i));
 		    }
 		    System.out.println("----------------------------------------");
-    		tipoPaso = pasoAdicional();    
-		    datos = lectorPasos.leerPasoJFusionGenquad(pasos);
+		    
+		    datos = lectorPasos.leerPaso(pasos);
+		    
 		    System.out.println("------- Datos sacados del Paso:  -------");
 		    System.out.println("Paso para el switch: " + tipoPaso);		
 		    datos.forEach((k,v) -> System.out.println(k + "-" + v));
@@ -63,8 +64,8 @@ public class TESTmainApp {
 		    
 		    // ----- INSERTAR AQUI VUESTRO METODO ---------3
 		    // NOMBRE PLANTILLA : "XXXX"
-			writerPasos.writeJFUSION(datos, letraPaso, pasoE, writerCortex);
-		    // --------------------------------------------
+		    //writerPasos.writeJPAPYRUS(datos, letraPaso, pasoE, writerCortex);
+		    
 		    if (lineNumber + 1 == fichero.size()) {
 				seguir = false;
 			}
@@ -117,13 +118,16 @@ public class TESTmainApp {
 					if(fichero.get(inicio).contains("PGM=SOF07200")) {
 						tipoPaso = "PGM=SOF07200";
 					}
+					if(fichero.get(inicio).contains("PGM=SOFCHEC3")) {
+						tipoPaso = "JSOFCHEC";
+					}
 				}else {
-					if (fichero.get(inicio).contains(" SORT ")) {
+					if (fichero.get(inicio).contains(" SORT")) {
 						tipoPaso = "SORT";
 					}
 					if (fichero.get(inicio).contains("PGM=SOF07013")) {
 						String numeroPaso = (TESTWriterPasos.pasoS - 2 < 10) ? "0" + String.valueOf(TESTWriterPasos.pasoS - 2) : String.valueOf(TESTWriterPasos.pasoS - 2) ;
-						if (TESTWriterPasos.histPasos.get(numeroPaso).equals("JFUSION")) {
+						if (TESTWriterPasos.histPasos.containsKey(numeroPaso) && TESTWriterPasos.histPasos.get(numeroPaso).equals("JFUSION")) {
 							tipoPaso = "ignore";
 						}else {
 							tipoPaso = "JBORRARF";
@@ -135,6 +139,9 @@ public class TESTmainApp {
 					}
 					if (fichero.get(inicio).contains("PGM=EQQEVPGM")) {
 						tipoPaso = "JOPCREC";
+					}
+					if (fichero.get(inicio).contains("PGM=SOF07070")) {
+						tipoPaso = "JPAUSA";
 					}
 				}
 				
@@ -165,7 +172,7 @@ public class TESTmainApp {
 			
 			private static String pasoAdicional() {
 				// TODO Auto-generated method stub
-			int inicio = 0, fin = 0, index = 0;
+			int inicio = 0, fin = 0;
 			String tipoPaso = "";
 			
 			for(int i = lineNumber; i < fichero.size(); i++) {

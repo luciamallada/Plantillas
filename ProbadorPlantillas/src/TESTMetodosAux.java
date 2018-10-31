@@ -59,6 +59,7 @@ public class TESTMetodosAux {
 	    
 	    return infoFichero;
 	}
+	
 	public Map<String, String> infoFichero(int pasoE, String letraPaso, String nombre) throws IOException {
 		// TODO Auto-generated method stub
 		ArrayList<String> infoFichero = new ArrayList<String>();
@@ -85,28 +86,33 @@ public class TESTMetodosAux {
 				}
 			}
 		    if(infoFichero.get(j).contains("SPACE") && !infoFich.get("SPACE").equals("CYL") && !infoFich.get("SPACE").equals("TRK")) {
-		    	int ini = 1, fin = 2;
-		    	ini = infoFichero.get(j).lastIndexOf("(");
-		    	for(int i = ini; i < infoFichero.get(j).length(); i++) {
-		    		if(infoFichero.get(j).charAt(i) == ',') {
-		    			fin = i;
-		    			i = 1000;
-		    		}
+		    	if (infoFich.containsKey("LRECL")) {
+		    		int ini = 1, fin = 2;
+			    	ini = infoFichero.get(j).lastIndexOf("(");
+			    	for(int i = ini; i < infoFichero.get(j).length(); i++) {
+			    		if(infoFichero.get(j).charAt(i) == ',') {
+			    			fin = i;
+			    			i = 1000;
+			    		}
+			    	}
+			    	tamaño = Integer.valueOf(infoFichero.get(j).substring(ini + 1, fin));
+			    	primario = Integer.parseInt(infoFich.get("SPACE")) * tamaño / Integer.parseInt(infoFich.get("LRECL")) / 1000;
+			    	primario = primario < 5 ? 10 : primario;
+			    	
+			    	ini = fin;
+			    	for(int i = ini; i < infoFichero.get(j).length(); i++) {
+			    		if(infoFichero.get(j).charAt(i) == ')') {
+			    			fin = i;
+			    			i = 1000;
+			    		}
+			    	}
+			    	tamaño = Integer.valueOf(infoFichero.get(j).substring(ini + 1, fin));
+			    	secundario = Integer.parseInt(infoFich.get("SPACE")) * tamaño / Integer.parseInt(infoFich.get("LRECL")) / 1000;; 
+			    	secundario = secundario < 3 ? 3 : secundario;
+		    	}else {
+		    		TESTAvisos.LOGGER.log(Level.INFO, letraPaso + String.valueOf(pasoE) + " //Fichero no contiene LRCL: " + nombre);
+					infoFich.put("LRECL","LRECL");
 		    	}
-		    	tamaño = Integer.valueOf(infoFichero.get(j).substring(ini + 1, fin));
-		    	primario = Integer.parseInt(infoFich.get("SPACE")) * tamaño / Integer.parseInt(infoFich.get("LRECL")) / 1000;
-		    	primario = primario < 5 ? 10 : primario;
-		    	
-		    	ini = fin;
-		    	for(int i = ini; i < infoFichero.get(j).length(); i++) {
-		    		if(infoFichero.get(j).charAt(i) == ')') {
-		    			fin = i;
-		    			i = 1000;
-		    		}
-		    	}
-		    	tamaño = Integer.valueOf(infoFichero.get(j).substring(ini + 1, fin));
-		    	secundario = Integer.parseInt(infoFich.get("SPACE")) * tamaño / Integer.parseInt(infoFich.get("LRECL")) / 1000;; 
-		    	secundario = secundario < 3 ? 3 : secundario;
 		    }else {
 		    	if(infoFichero.get(j).contains("SPACE") && infoFich.get("SPACE").equals("CYL")) {
 		    		primario = 15;
@@ -260,7 +266,9 @@ public class TESTMetodosAux {
 			
 			if(ficheros[0].contains("SORTIDA=")) {
 				infoFich = infoFichero(pasoE, letraPaso, ficheros[0].replace("SORTIDA=", ""));
-				datos.put("MGMTCLAS", infoFich.get("MGMTCLAS"));
+				if (infoFich.containsKey("MGMTCLAS")){
+					datos.put("MGMTCLAS", infoFich.get("MGMTCLAS"));
+				}
 				datos.put("Definicion", infoFich.get("Definicion"));
 				datos.put("DSN", infoFich.get("DSN"));
 				datos.put("SALIDA", ficheros[0].replace("SORTIDA=", ""));
@@ -276,6 +284,30 @@ public class TESTMetodosAux {
 			}	
 		}
 		
+	}
+	
+	public static ArrayList<String> ComprobarTamañoLinea(String cabecera, String linea, String fi, Map<String, String> datos) {
+		// TODO Auto-generated method stub
+		ArrayList<String> salida = new ArrayList<String>();
+		if((linea.trim() + fi + datos.get(cabecera)).length() < 72) {
+			if(datos.get(cabecera) == null) {
+				salida.add(0 ,linea.trim() + fi.trim());
+			}else {
+				salida.add(0 ,linea.trim() + fi.trim() + " " + datos.get(cabecera));
+			}
+			salida.add(1, "");			 
+		}
+		else{
+			fi = linea.trim()+ fi.trim() + " " + datos.get(cabecera);
+			for(int i = 72; i > 0; i--) {
+				if(fi.lastIndexOf(" ", i) != -1) {
+					salida.add(0, fi.substring(0, fi.lastIndexOf(" ", i)));
+					salida.add(1, fi.substring(fi.lastIndexOf(" ", i)) + " ");
+					i = -1;
+				}
+			}			
+		}		
+		return salida;
 	}
 
 }

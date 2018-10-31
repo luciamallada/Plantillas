@@ -9,7 +9,7 @@ public class TESTLectorPasos {
 		Map<String, String> datos = new HashMap<String, String>();
 		String clave, valor;
 		int index = 0;
-		int archivosEntrada = 0, archivosSalida = 0, comentarios = 0, reportes = 0;
+		int archivosEntrada = 0, archivosSalida = 0;
 		
 		for(int i = 0; i < pasos.size(); i++) {
 			index = 0;
@@ -20,7 +20,7 @@ public class TESTLectorPasos {
 						index = pasos.get(i).indexOf('=', index);
 						if (index != -1 && pasos.get(i).charAt(index + 1) != '(') {
 							clave = leerClave(pasos.get(i), index);
-							valor = leerValor(pasos.get(i), index);
+							valor = leerValor(pasos.get(i), index, clave);
 							if (!clave.equals("") && !valor.equals("")) {
 								datos.put(clave, valor);
 							}
@@ -57,15 +57,81 @@ public class TESTLectorPasos {
 						}
 					}
 				}
-// --------------- Buscamos comentarios
+				
+				
+//// --------------- Buscamos comentarios
+//				if(pasos.get(i).startsWith("*")) {
+//					int j = i + 1, totalComents = 0;
+//					while (pasos.size() > j && pasos.get(j).startsWith("*")) {
+//						j++;
+//					}
+//					totalComents = j - i;
+//					if (pasos.size() > j && pasos.get(j).contains("FILE")) {
+//						index = 0;
+//						index = pasos.get(j).indexOf("MODE=") + 5;
+//						if (pasos.get(j).charAt(index) == 'I' || pasos.get(j).charAt(index) == 'U') {
+//							for (int k = 0; k < totalComents; k++) {
+//								clave = "ComFichE" + String.valueOf(archivosEntrada + 1) + String.valueOf(k + 1);
+//								valor = pasos.get(i + k);
+//								datos.put(clave, valor);
+//							}
+//						}else {
+//							for (int k = 1; k <= totalComents; k++) {
+//								clave = "ComFichS" + String.valueOf(archivosEntrada + 1) + String.valueOf(k);
+//								valor = pasos.get(i + k);
+//								datos.put(clave, valor);
+//							}
+//						}
+//					i = j-1;
+//					}else {
+//						comentarios++;
+//						clave = "Comentario" + String.valueOf(comentarios);
+//						valor = pasos.get(i);
+//						datos.put(clave, valor);
+//					}
+//				}
+//// --------------- Buscar reportes	
+//				if (pasos.get(i).contains(" REPORT ")) {
+//					if(pasos.get(i).trim().endsWith("SYSOUT=S") || pasos.get(i).trim().endsWith("SYSOUT=*") || pasos.get(i).trim().endsWith("SYSOUT=*END") ) {
+//						continue;
+//					}else {
+//						reportes++;
+//						clave = "Reporte" + String.valueOf(reportes);
+//						valor = pasos.get(i).substring(0,9);
+//						datos.put(clave, valor);
+//					}	
+//				}
+//// --------------- Buscar IF - ENDIF
+//				if(pasos.get(i).matches("(.*)IF [" + mainApp.letraPaso + "][0-9]{2}(.*)")) {
+//					clave = "IF";
+//					index = pasos.get(i).indexOf("IF " + mainApp.letraPaso);
+//					valor = pasos.get(i).substring(index);
+////					System.out.println(clave + " - " + valor);
+//					datos.put(clave, valor);
+//				}
+//			}	
+			}
+		}
+		datos = busquedaAdicional(datos, pasos);
+
+		return datos;
+	}
+
+	private Map<String, String> busquedaAdicional(Map<String, String> datos, ArrayList<String> pasos){
+		String clave, valor;
+		int index = 0;
+		int archivosEntrada = 0, archivosSalida = 0, comentarios = 0, reportes = 0;
+		for(int i = 0; i < pasos.size(); i++) {
+			index = 0;
+			if (!pasos.get(i).startsWith("CUADRE")) {
+				// --------------- Buscamos comentarios
 				if(pasos.get(i).startsWith("*")) {
 					int j = i + 1, totalComents = 0;
-					boolean fich = (pasos.size() > j);
-					while (fich && pasos.get(j).startsWith("*")) {
+					while (pasos.size() > j && pasos.get(j).startsWith("*")) {
 						j++;
 					}
 					totalComents = j - i;
-					if (fich && pasos.get(j).contains("FILE")) {
+					if (pasos.size() > j && pasos.get(j).contains("FILE")) {
 						index = 0;
 						index = pasos.get(j).indexOf("MODE=") + 5;
 						if (pasos.get(j).charAt(index) == 'I' || pasos.get(j).charAt(index) == 'U') {
@@ -76,7 +142,7 @@ public class TESTLectorPasos {
 							}
 						}else {
 							for (int k = 1; k <= totalComents; k++) {
-								clave = "ComFichS" + String.valueOf(archivosEntrada + 1) + String.valueOf(k);
+								clave = "ComFichS" + String.valueOf(archivosSalida + 1) + String.valueOf(k);
 								valor = pasos.get(i + k);
 								datos.put(clave, valor);
 							}
@@ -89,31 +155,35 @@ public class TESTLectorPasos {
 						datos.put(clave, valor);
 					}
 				}
-// --------------- Buscar reportes	
+		//--------------- Buscar reportes	
 				if (pasos.get(i).contains(" REPORT ")) {
 					if(pasos.get(i).trim().endsWith("SYSOUT=S") || pasos.get(i).trim().endsWith("SYSOUT=*") || pasos.get(i).trim().endsWith("SYSOUT=*END") ) {
 						continue;
 					}else {
 						reportes++;
 						clave = "Reporte" + String.valueOf(reportes);
-						valor = pasos.get(i).substring(0,9);
+						valor = pasos.get(i).substring(0,8);
 						datos.put(clave, valor);
 					}	
 				}
-// --------------- Buscar IF - ENDIF
+		//--------------- Buscar IF - ENDIF
 				if(pasos.get(i).matches("(.*)IF [" + TESTmainApp.letraPaso + "][0-9]{2}(.*)")) {
 					clave = "IF";
 					index = pasos.get(i).indexOf("IF " + TESTmainApp.letraPaso);
-					valor = pasos.get(i).substring(index);
-//					System.out.println(clave + " - " + valor);
+					valor = "//         " + pasos.get(i).substring(index);
 					datos.put(clave, valor);
 				}
-			}	
+				if(pasos.get(i).contains("ENDIF")){
+					clave = "ENDIF";
+					valor = "//         ENDIF";
+					datos.put(clave, valor);
+				}
+			}
 		}
-
-		return datos;
+		
+		return datos;	
 	}
-
+	
 	private String leerArchivoSalida(String linea, Map<String, String> datos, int archivosSalida) {
 		// TODO Auto-generated method stub
 		String valor = "";
@@ -160,8 +230,40 @@ public class TESTLectorPasos {
 					i = linea.length() + 1;
 				}
 			}
-			//evitar, solo se hará replace al insertar la variable correspondiente
 			valor = linea.substring(index + 2, fin).replace(',', '-');
+		}else{
+			for(int i = index; i < linea.length(); i++) {
+				if (linea.charAt(i) == ',' || linea.charAt(i) == ' ' || linea.charAt(i) == ')') {
+					fin = i;
+					i = linea.length() + 1;
+				}
+				if (fin == 0) {
+					fin = linea.length();
+				}
+			}
+			valor = linea.substring(index + 1, fin);
+		}
+		
+		return valor;
+	}
+	
+	private String leerValor(String linea, int index, String clave) {
+		// TODO Auto-generated method stub
+		String valor = "";
+		int fin = 0;
+		if(linea.charAt(index + 1) == '\''){
+			for(int i = index + 2; i < linea.length(); i++) {
+				if (linea.charAt(i) == '\'') {
+					fin = i;					
+					i = linea.length() + 1;
+				}
+			}
+			if (clave.contains("DADA") || clave.contains("ADR")) {
+				linea = linea.substring(index + 2, fin);	
+			}else {
+				linea = linea.substring(index + 2, fin).replace(',', '-');
+			}
+			valor = linea;
 		}else{
 			for(int i = index; i < linea.length(); i++) {
 				if (linea.charAt(i) == ',' || linea.charAt(i) == ' ' || linea.charAt(i) == ')') {
@@ -219,6 +321,7 @@ public class TESTLectorPasos {
 				j = pasos.size() + 1;
 			}
 		}
+		datos = busquedaAdicional(datos, pasos);
 		
 		return datos;
 	}
@@ -236,6 +339,7 @@ public class TESTLectorPasos {
 				j = pasos.size() + 1;
 			}
 		}
+		datos = busquedaAdicional(datos, pasos);
 		
 		return datos;
 		
@@ -283,8 +387,28 @@ public class TESTLectorPasos {
 				j = pasos.size() + 1;
 			}
 		}
+		datos = busquedaAdicional(datos, pasos);
 		
 		return datos;
 	}
+
+	public Map<String, String> leerPasoJPAUSA(ArrayList<String> pasos) {
+		Map<String, String> datos = new HashMap<String, String>();
+		String valor, clave;
+		int index = 0;
+		for(int j = 0; j < pasos.size(); j++) {
+			if(pasos.get(j).contains("PARM=")) {
+				clave = "PARM";
+				index = pasos.get(j).indexOf("('", index);
+				valor = pasos.get(j).substring(index+2, pasos.get(j).lastIndexOf("')"));
+				datos.put(clave, valor);
+				j = pasos.size() + 1;
+			}
+		}
+		datos = busquedaAdicional(datos, pasos);
+		
+		return datos;
+		
+	}   
 
 }
