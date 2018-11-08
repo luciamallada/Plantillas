@@ -11,7 +11,7 @@ import java.util.logging.Level;
 public class TESTmainApp {
 	
 	//--------------------- DATO A INTRODUCIR ------------------------------
-	public static String programa = "AGE01F";
+	public static String programa = "AUT03E";
 	//----------------------------------------------------------------------
 	//--------------------- Variables Programa -----------------------------
 		public static Map<String, String> datos = new HashMap<String, String>();
@@ -64,7 +64,7 @@ public class TESTmainApp {
 		    
 		    // ----- INSERTAR AQUI VUESTRO METODO ---------3
 		    // NOMBRE PLANTILLA : "XXXX"
-		    //writerPasos.writeJPAPYRUS(datos, letraPaso, pasoE, writerCortex);
+		//    writerPasos.writeJBORRAFPaso(datos, letraPaso, pasoE, writerCortex);
 		    
 		    if (lineNumber + 1 == fichero.size()) {
 				seguir = false;
@@ -143,9 +143,12 @@ public class TESTmainApp {
 					if (fichero.get(inicio).contains("PGM=SOF07070")) {
 						tipoPaso = "JPAUSA";
 					}
+					if (fichero.get(inicio).contains("PGM=IEBGENER")) {
+						tipoPaso = "JIEBGEN2";
+					}
 				}
 				
-				for(int i = inicio; i < fin; i++) {
+				for(int i = inicio; i <= fin; i++) {
 					String linea = fichero.get(i);
 					if (linea.length() >= 71) {
 						linea = linea.substring(0, 71);
